@@ -1,0 +1,8 @@
+
+Testing field for Tcl Scripts with Gtk+ as Tk
+
+In the Wiki there is documentation for the attempt to port gnocl to Snow
+Leopard 10.6 relying on Gtk-Macosx which is bound to the Quartz theme
+(Aqua).
+
+
