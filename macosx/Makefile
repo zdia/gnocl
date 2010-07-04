@@ -36,6 +36,7 @@ LIBS := $(shell pkg-config \
 # Definiere das Quellmakro
 GTK_OBJ := \
 	osxmenu.o
+# osxmenu_ui.o
 
 .PHONY: all testosxmenu clean install uninstall reinstall devinstall devuninstall
 

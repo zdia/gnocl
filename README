@@ -5,4 +5,9 @@ In the Wiki there is documentation for the attempt to port gnocl to Snow
 Leopard 10.6 relying on Gtk-Macosx which is bound to the Quartz theme
 (Aqua).
 
+In the download section you will find the gnocl.dylib dynamic library for MacOSX and a modified pkgIndex.tcl.
+Most of the gnocl commands are working, just try "gnocl::window".
+
+But the Mac style menubar is still in work.
+
 
