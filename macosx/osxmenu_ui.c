@@ -14,6 +14,8 @@
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 #include "gtkosxapplication.h"
+#import <Cocoa/Cocoa.h>
+
 // END header gnoclosx.h
 
 // void setup_mac_menu ()
@@ -22,7 +24,7 @@
 // }
 
 /* In an actual application, you would implement these callback functions! */
-static void open (GtkMenuItem *menuitem, gpointer data) {g_print("open something\n");};
+static void openmenue (GtkMenuItem *menuitem, gpointer data) {g_print("open something\n");};
 static void save (GtkMenuItem *menuitem, gpointer data) {};
 static void quit (GtkMenuItem *menuitem, gpointer data) {};
 static void cut (GtkMenuItem *menuitem, gpointer data) {};
@@ -38,7 +40,7 @@ static GtkActionEntry entries[] =
 {
   { "File", NULL, "_File", NULL, NULL, NULL },
   { "Open", GTK_STOCK_OPEN, NULL, NULL, 
-     "Open an existing file", G_CALLBACK (open) },
+     "Open an existing file", G_CALLBACK (openmenue) },
   { "Save", GTK_STOCK_SAVE, NULL, NULL, 
      "Save the document to a file", G_CALLBACK (save) },
   { "Quit", GTK_STOCK_QUIT, NULL, NULL, 
@@ -57,7 +59,7 @@ static GtkActionEntry entries[] =
   { "Help", NULL, "_Help", NULL, NULL, NULL },
   { "Contents", GTK_STOCK_HELP, NULL, NULL, 
     "Get help on using the application", G_CALLBACK (help) },
-  { "About", GTK_STOCK_ABOUT, NULL, NULL, 
+  { "About", GTK_STOCK_ABOUT, "_About", NULL, 
     "More information about the application", G_CALLBACK (about) }
 };
 
@@ -66,9 +68,10 @@ int main (int argc,
           char *argv[])
 {
 	GtkWidget *window, *menubar, *vbox;
+	GtkMenuItem *aboutmenu;
   GtkActionGroup *group;
   GtkUIManager *uimanager;
-  
+	GtkOSXApplicationMenuGroup *appmenugroup;
   GtkOSXApplication *theApp;
 	
   gtk_init (&argc, &argv);
@@ -96,6 +99,7 @@ int main (int argc,
 
 	/* Retrieve the necessary widgets and associate accelerators. */
   menubar = gtk_ui_manager_get_widget (uimanager, "/MenuBar");
+  aboutmenu = gtk_ui_manager_get_widget (uimanager, "/MenuBar/HelpMenu/HelpAbout");
   // toolbar = gtk_ui_manager_get_widget (uimanager, "/Toolbar");
   // gtk_toolbar_set_style (GTK_TOOLBAR (toolbar), GTK_TOOLBAR_ICONS);
   // gtk_window_add_accel_group (GTK_WINDOW (window), 
@@ -115,7 +119,12 @@ int main (int argc,
   // gtk_osxapplication_set_window_menu(theApp, NULL);
   
   // insert the About item
+	// NSMenu *mainMenu = [NSApplicationMain mainMenu];
+	// [mainMenu GTK_MENU_ITEM (about)];
+  appmenugroup = gtk_osxapplication_add_app_menu_group (theApp);
+	gtk_osxapplication_add_app_menu_item  (theApp, appmenugroup, aboutmenu);
 
+	
 	gtk_widget_show_all(menubar);
 	gtk_widget_show_all(window);
   gtk_osxapplication_ready(theApp);
