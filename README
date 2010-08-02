@@ -1,13 +1,20 @@
+Porting gnocl to MacOSX
 
-Testing field for Tcl Scripts with Gtk+ as Tk
+For Linux systems we have not only Tcl/Tk but - using the Gnocl library - Tcl/Gtk+, too . Gnocl is a stable and well documented extension, see www.gnocl.org.
+
+As Gtk is a cross platform GUI so why not try to port Gnocl to MacOSX since there is a native implementation of Gtk-2.0 for MacOSX with gtk-osx (see http://gtk-osx.sourceforge.net/)? The drawing routines are bound to the Quartz library which is the base for Aqua.
 
 In the Wiki there is documentation for the attempt to port gnocl to Snow
 Leopard 10.6 relying on Gtk-Macosx which is bound to the Quartz theme
 (Aqua).
 
-In the download section you will find the gnocl.dylib dynamic library for MacOSX and a modified pkgIndex.tcl.
-Most of the gnocl commands are working, just try "gnocl::window".
+Actual step: Integration of Mac application menu and menubar
+Concerned files: osxmenu.c gnocl.c
 
-But the Mac style menubar is still in work.
-
-
+2010-07-05: added About to appmenu
+2010-07-04: Mac menu built from xml source
+2010-07-01: C skeleton for a macos menubar
+2010-06-21: adding header files
+2010-06-21: creating gnocl.dylib
+2010-05-14: Purpose
+2010-05-14: first commit
