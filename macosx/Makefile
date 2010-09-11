@@ -1,27 +1,26 @@
 #---------------
 # NAME
-#   makefile -- test Gtk Initialisation on mac
+#   makefile for package GnoclMacOSX-- Package build and installation
 #---------------
 # AUTHORS
-#		Zbigniew Diaczyszyn, 2010
+#   Peter G Baum, 2005
+#   William J Giddings. 2010
+#		adapted to MacOSX: Zbigniew Diaczyszyn, 2010
 #---------------
 
-PACKAGE_NAME := gnocl
-PACKAGE_REQUIRE_NAME := Gnocl
-VERSION := 0.9.95
+PACKAGE_NAME := gnoclmacosx
+PACKAGE_REQUIRE_NAME := GnoclMacOSX
+VERSION := 0.0
 
-CFLAGS += -pedantic -fPIC -w -Os -ObjC -arch i386
+CFLAGS += -pedantic -fPIC -w -Os -dynamiclib -ObjC -arch i386
 
 TCL_VERSION := $(shell echo 'puts $$tcl_version' | tclsh)
 
-# Die gedit Hilfsdateien finiden sich in /home/dia/Projekte/git/gedit/gedit
 ADDCFLAGS := -DVERSION=\"$(VERSION)\" \
 	-DUSE_TCL_STUBS $(shell pkg-config --cflags gtk+-2.0) \
 	-F/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/Tcl.framework \
 	-I/Users/zdia/gtk/inst/include/libglade-2.0 \
-	-I/Users/zdia/gtk/inst/include/gio-unix-2.0 \
 	-I/Users/zdia/gtk/inst/include/igemacintegration \
-	-I/Users/zdia/gnocl-0.9.95/src/macosx \
 	-isysroot /Developer/SDKs/MacOSX10.6.sdk \
 	-isystem /Users/zdia/gtk/inst/include
 	#	-I/usr/include/libglade-2.0
@@ -29,24 +28,57 @@ ADDCFLAGS := -DVERSION=\"$(VERSION)\" \
 LIBS := $(shell pkg-config \
 	--libs gtk+-2.0 libglade-2.0 ) \
 	-ltclstub$(TCL_VERSION) \
-	-ligemacintegration
+	-ligemacintegration \
+# 	/System/Library/Frameworks/Tcl.framework/Versions/8.5/libtclstub8.5.a 
 
-#	/System/Library/Frameworks/Tcl.framework/Versions/8.5/libtclstub8.5.a 
-
-# Definiere das Quellmakro
 GTK_OBJ := \
-	osxmenu.o
-# osxmenu_ui.o
+	gnoclOSX.o
 
-.PHONY: all testosxmenu clean install uninstall reinstall devinstall devuninstall
+.PHONY: all $(PACKAGE_NAME) clean install uninstall reinstall devinstall devuninstall
 
-# Regel für alle *.o Dateien
-%.o : %.c
-	$(CC) -c $(CFLAGS) $(ADDCFLAGS) $<
+# %.o : %.c; $(CC) -c $(CFLAGS) $(ADDCFLAGS) -o $*.o $<
+# darwin gcc is complaining about the -o output
+%.o : %.c;	$(CC) -c $(CFLAGS) $(ADDCFLAGS) $<
 
-testosxmenu: $(GTK_OBJ)
-	$(CC) -arch i386 -o $@ $(GTK_OBJ) $(LIBS)
-# /Developer/SDKs/MacOSX10.6.sdk/usr/lib/libc.dylib
+all: pkgIndex.tcl $(PACKAGE_NAME).dylib ;
+
+$(PACKAGE_NAME): $(PACKAGE_NAME).dylib ;
+
+$(PACKAGE_NAME).dylib: $(GTK_OBJ)
+	# mv combo.o fileSelection.o optionMenu.o deprecated/
+	# $(CC) -dynamic -arch i386 -o $@ $(GTK_OBJ) $(LIBS)
+	libtool -dynamic -arch_only i386 -o $@ $(GTK_OBJ) $(LIBS) \
+		/Developer/SDKs/MacOSX10.6.sdk/usr/lib/libc.dylib \
+		/Users/zdia/gnocl-0.9.95/src/gnocl.dylib
 
 clean:
-	rm -f $(GTK_OBJ)
+	rm -f $(GTK_OBJ) $(PACKAGE_NAME).dylib
+
+install:
+	./install.tcl $(PACKAGE_REQUIRE_NAME) $(VERSION) $(PACKAGE_NAME) install
+
+
+uninstall:
+	./install.tcl $(PACKAGE_REQUIRE_NAME) $(VERSION) $(PACKAGE_NAME) uninstall
+
+reinstall:
+	./install.tcl $(PACKAGE_REQUIRE_NAME) $(VERSION) $(PACKAGE_NAME) uninstall
+	./install.tcl $(PACKAGE_REQUIRE_NAME) $(VERSION) $(PACKAGE_NAME) install
+
+test:
+	( \
+	cd ../demo; \
+	./doTests; \
+	cd ../src; \
+	)
+
+devinstall:
+	ar cr libgnocl-$(VERSION).a $(GTK_OBJ)
+	cp gnocl.h /usr/include
+	cp libgnocl*.a /usr/lib
+	rm libgnocl*.a
+
+devuninstall:
+	rm /usr/include/gnocl.h
+	rm /usr/lib/libgnocl*.a
+

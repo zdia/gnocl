@@ -278,8 +278,6 @@ This manual is divided in the following sections:
 #include <ctype.h>
 #include <stdlib.h>
 #include <assert.h>
-//  added zdia 01.08.2010
-#include "osxmenu.h"
 
 static GHashTable *name2widgetList;
 static const char idPrefix[] = "::gnocl::_WID";
@@ -1519,16 +1517,6 @@ int Gnocl_Init ( Tcl_Interp *interp )
 
 	/* initialize the hash table to contain list of pointers to named widgets */
 	name2widgetList = g_hash_table_new ( g_direct_hash, g_direct_equal );
-
-	/* create a default menubar for MacOS*/
-	// #ifdef MAC_INTEGRATION
-#ifdef GDK_WINDOWING_QUARTZ
-	if ( !setupDefaultMacmenu ( interp ) )
-	{
-		Tcl_SetResult ( interp, "could not initialize osxgtk", TCL_STATIC );
-		return TCL_ERROR;
-	}
-#endif
 	
 	/* FIXME: is there a more elegant way? */
 	/*        use gtk_idle_add( tclTimerFunc, NULL ); ? */
