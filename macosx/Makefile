@@ -6,6 +6,14 @@
 #   Peter G Baum, 2005
 #   William J Giddings. 2010
 #		adapted to MacOSX: Zbigniew Diaczyszyn, 2010
+#		see https://github.com/zdia/gnocl/wiki/gnocl-on-MacOSX
+#---------------
+# DEPENDENCIES
+#		Gtk-osx installed
+#		Gnocl installed
+#		Git installed
+#		ActiveState Tcl 8.5 for MacOSX
+#		build is started in 'jhbuild shell' environment
 #---------------
 
 PACKAGE_NAME := gnoclmacosx
@@ -15,41 +23,36 @@ VERSION := 0.0
 CFLAGS += -pedantic -fPIC -w -Os -dynamiclib -ObjC -arch i386
 
 TCL_VERSION := $(shell echo 'puts $$tcl_version' | tclsh)
+GNOCLLIB := "/Users/zdia/gnocl-0.9.95/src/gnocl.dylib"
+
+# if not AS Tcl/Tk then:
+# -F/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/Tcl.framework
 
 ADDCFLAGS := -DVERSION=\"$(VERSION)\" \
-	-DUSE_TCL_STUBS $(shell pkg-config --cflags gtk+-2.0) \
-	-F/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/Tcl.framework \
-	-I/Users/zdia/gtk/inst/include/libglade-2.0 \
-	-I/Users/zdia/gtk/inst/include/igemacintegration \
-	-isysroot /Developer/SDKs/MacOSX10.6.sdk \
-	-isystem /Users/zdia/gtk/inst/include
-	#	-I/usr/include/libglade-2.0
+	-DUSE_TCL_STUBS $(shell pkg-config --cflags gtk+-2.0 ige-mac-integration) \
+	-F/Library/Frameworks/Tcl.framework 
 
 LIBS := $(shell pkg-config \
-	--libs gtk+-2.0 libglade-2.0 ) \
+	--libs gtk+-2.0 ige-mac-integration) \
 	-ltclstub$(TCL_VERSION) \
-	-ligemacintegration \
-# 	/System/Library/Frameworks/Tcl.framework/Versions/8.5/libtclstub8.5.a 
 
 GTK_OBJ := \
 	gnoclOSX.o
 
 .PHONY: all $(PACKAGE_NAME) clean install uninstall reinstall devinstall devuninstall
 
-# %.o : %.c; $(CC) -c $(CFLAGS) $(ADDCFLAGS) -o $*.o $<
-# darwin gcc is complaining about the -o output
-%.o : %.c;	$(CC) -c $(CFLAGS) $(ADDCFLAGS) $<
+%.o : %.c; $(CC) -c $(CFLAGS) $(ADDCFLAGS) -o $*.o $<
 
 all: pkgIndex.tcl $(PACKAGE_NAME).dylib ;
 
 $(PACKAGE_NAME): $(PACKAGE_NAME).dylib ;
 
+# jhbuild's modules work with the autotools' libtool 
+# for the moment we build the lib with Apple's native tool
+
 $(PACKAGE_NAME).dylib: $(GTK_OBJ)
-	# mv combo.o fileSelection.o optionMenu.o deprecated/
-	# $(CC) -dynamic -arch i386 -o $@ $(GTK_OBJ) $(LIBS)
-	libtool -dynamic -arch_only i386 -o $@ $(GTK_OBJ) $(LIBS) \
-		/Developer/SDKs/MacOSX10.6.sdk/usr/lib/libc.dylib \
-		/Users/zdia/gnocl-0.9.95/src/gnocl.dylib
+	/usr/bin/libtool -dynamic -arch_only i386 -o $@ $(GTK_OBJ) $(LIBS) \
+		/Developer/SDKs/MacOSX10.6.sdk/usr/lib/libc.dylib $(GNOCLLIB)
 
 clean:
 	rm -f $(GTK_OBJ) $(PACKAGE_NAME).dylib

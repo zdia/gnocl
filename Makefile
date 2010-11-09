@@ -1,28 +1,36 @@
 #---------------
 # NAME
-#   makefile -- Package build and installation
+#   Makefile -- Package build and installation for gnocl.dylib
 #---------------
 # AUTHORS
 #   Peter G Baum, 2005
 #   William J Giddings. 2010
+#		adapted to MacOSX: Zbigniew Diaczyszyn, 2010
+#		see https://github.com/zdia/gnocl/wiki/gnocl-on-MacOSX
 #---------------
+# DEPENDENCIES
+#		Gtk+-2.0
+#		Git installed
+#		ActiveState Tcl 8.5 for MacOSX
 
 PACKAGE_NAME := gnocl
 PACKAGE_REQUIRE_NAME := Gnocl
 VERSION := 0.9.95
 
-CFLAGS += -pedantic -fPIC -w -Os
+CFLAGS += -pedantic -fPIC -w -Os -dynamiclib -ObjC -arch i386
 
 TCL_VERSION := $(shell echo 'puts $$tcl_version' | tclsh)
 
+# if not AS Tcl/Tk then:
+# -F/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/Tcl.framework
+
 ADDCFLAGS := -DVERSION=\"$(VERSION)\" \
-	-DUSE_TCL_STUBS $(shell pkg-config --cflags gtk+-2.0) \
-	-I/usr/include/tcl$(TCL_VERSION) \
-	-I/usr/include/libglade-2.0
+	-DUSE_TCL_STUBS $(shell pkg-config --cflags gtk+-2.0 libglade-2.0) \
+	-F/Library/Frameworks/Tcl.framework 
 
 LIBS := $(shell pkg-config \
-	--libs gtk+-2.0 libglade-2.0 ) \
-	-ltclstub$(TCL_VERSION)
+	--libs gtk+-2.0 libglade-2.0 ige-mac-integration) \
+	-ltclstub$(TCL_VERSION) \
 
 GTK_OBJ := \
 	aboutDialog.o \
@@ -104,20 +112,28 @@ GTK_OBJ := \
 	volumeButton.o \
 	window.o
 
-
 .PHONY: all $(PACKAGE_NAME) clean install uninstall reinstall devinstall devuninstall
 
 %.o : %.c; $(CC) -c $(CFLAGS) $(ADDCFLAGS) -o $*.o $<
+# darwin gcc is complaining about the -o output
+# %.o : %.c;	$(CC) -c $(CFLAGS) $(ADDCFLAGS) $<
 
-all: pkgIndex.tcl $(PACKAGE_NAME).so ;
+all: pkgIndex.tcl $(PACKAGE_NAME).dylib ;
 
-$(PACKAGE_NAME): $(PACKAGE_NAME).so ;
+$(PACKAGE_NAME): $(PACKAGE_NAME).dylib ;
 
-$(PACKAGE_NAME).so: $(GTK_OBJ)
-	$(CC) -shared -o $@ $(GTK_OBJ) $(LIBS)
+$(PACKAGE_NAME).dylib: $(GTK_OBJ)
+	# mv combo.o fileSelection.o optionMenu.o deprecated/
+	# $(CC) -dynamic -arch i386 -o $@ $(GTK_OBJ) $(LIBS) \
+		# /Developer/SDKs/MacOSX10.6.sdk/usr/lib/libc.dylib
+		
+	# jhbuild's modules work with the autotools' libtool 
+	# for the moment we build the lib with Apple's native tool
+	/usr/bin/libtool -dynamic -arch_only i386 -o $@ $(GTK_OBJ) $(LIBS) \
+		/Developer/SDKs/MacOSX10.6.sdk/usr/lib/libc.dylib
 
 clean:
-	rm -f $(GTK_OBJ) $(PACKAGE_NAME).so
+	rm -f $(GTK_OBJ) $(PACKAGE_NAME).dylib
 
 install:
 	./install.tcl $(PACKAGE_REQUIRE_NAME) $(VERSION) $(PACKAGE_NAME) install
@@ -146,3 +162,4 @@ devinstall:
 devuninstall:
 	rm /usr/include/gnocl.h
 	rm /usr/lib/libgnocl*.a
+
