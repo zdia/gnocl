@@ -1,0 +1,189 @@
+10.11.2010 
+Windowmanager Xfce 4.6.1
+gtk_binary_version=2.10.0
+gtk_host=i686-pc-linux-gnu
+
+
+Not implemented or issues:
+==========================
+
+-dragTargets
+-modal (ok, but Gdk-CRITICAL)
+-keepAbove
+-typeHint {dialog menu toolbar splashscreen utility dock desktop}
+-isActive (ok, but GLib-GObject-WARNING)
+-hasToplevelFocus
+-gravity
+-hasFrame
+-fullScreen
+-transient
+-keepAbove
+-keepBelow
+-stick
+-opacity
+-mask
+-cursor (X crash)
+
+============ source log ===============
+
+-dragTargets MyWidget
+Error: Command "cget" is for option "-dragTargets" not yet implemented.
+Please mail the author, if you need it.
+
+(test.tcl:2711): Gdk-CRITICAL **: gdk_x11_atom_to_xatom_for_display: assertion `atom != GDK_NONE' failed
+-modal 1 ok
+
+(test.tcl:2711): Gdk-CRITICAL **: gdk_x11_atom_to_xatom_for_display: assertion `atom != GDK_NONE' failed
+-modal 0 ok
+
+(test.tcl:2711): Gdk-CRITICAL **: gdk_x11_atom_to_xatom_for_display: assertion `atom != GDK_NONE' failed
+-keepAbove 0
+(test.tcl:2711): Gdk-CRITICAL **: gdk_x11_atom_to_xatom_for_display: assertion `atom != GDK_NONE' failed
+
+Error: Command "cget" is for option "-keepAbove" not yet implemented.
+Please mail the author, if you need it.
+
+(test.tcl:2711): Gdk-CRITICAL **: gdk_x11_atom_to_xatom_for_display: assertion `atom != GDK_NONE' failed
+
+(test.tcl:2711): Gdk-CRITICAL **: gdk_x11_atom_to_xatom_for_display: assertion `atom != GDK_NONE' failed
+-keepAbove 1
+(test.tcl:2711): Gdk-CRITICAL **: gdk_x11_atom_to_xatom_for_display: assertion `atom != GDK_NONE' failed
+
+(test.tcl:2711): Gdk-CRITICAL **: gdk_x11_atom_to_xatom_for_display: assertion `atom != GDK_NONE' failed
+
+Error: Command "cget" is for option "-keepAbove" not yet implemented.
+Please mail the author, if you need it.
+
+(test.tcl:2711): Gtk-CRITICAL **: gtk_window_set_type_hint: assertion `!GTK_WIDGET_VISIBLE (window)' failed
+-typeHint normal ok
+
+(test.tcl:2711): Gtk-CRITICAL **: gtk_window_set_type_hint: assertion `!GTK_WIDGET_VISIBLE (window)' failed
+-typeHint dialog
+Error: -typeHint: dialog != normal
+
+(test.tcl:2711): Gtk-CRITICAL **: gtk_window_set_type_hint: assertion `!GTK_WIDGET_VISIBLE (window)' failed
+-typeHint menu
+Error: -typeHint: menu != normal
+
+(test.tcl:2711): Gtk-CRITICAL **: gtk_window_set_type_hint: assertion `!GTK_WIDGET_VISIBLE (window)' failed
+-typeHint toolbar
+Error: -typeHint: toolbar != normal
+
+(test.tcl:2711): Gtk-CRITICAL **: gtk_window_set_type_hint: assertion `!GTK_WIDGET_VISIBLE (window)' failed
+-typeHint splashscreen
+Error: -typeHint: splashscreen != normal
+
+(test.tcl:2711): Gtk-CRITICAL **: gtk_window_set_type_hint: assertion `!GTK_WIDGET_VISIBLE (window)' failed
+-typeHint utility
+Error: -typeHint: utility != normal
+
+(test.tcl:2711): Gtk-CRITICAL **: gtk_window_set_type_hint: assertion `!GTK_WIDGET_VISIBLE (window)' failed
+-typeHint dock
+Error: -typeHint: dock != normal
+
+(test.tcl:2711): Gtk-CRITICAL **: gtk_window_set_type_hint: assertion `!GTK_WIDGET_VISIBLE (window)' failed
+-typeHint desktop
+Error: -typeHint: desktop != normal
+
+(test.tcl:2711): Gdk-CRITICAL **: gdk_x11_atom_to_xatom_for_display: assertion `atom != GDK_NONE' failed
+-skipPagerHint 1 ok
+(test.tcl:2711): Gdk-CRITICAL **: gdk_x11_atom_to_xatom_for_display: assertion `atom != GDK_NONE' failed
+-skipTaskBarHint 1 ok
+
+(test.tcl:2711): GLib-GObject-WARNING **: IA__g_object_set_valist: property `is-active' of object class `GtkWindow' is not writable
+-isActive 0
+Error: -isActive: 0 != 1
+
+(test.tcl:2711): GLib-GObject-WARNING **: IA__g_object_set_valist: property `is-active' of object class `GtkWindow' is not writable
+-isActive 1 ok
+
+(test.tcl:2711): GLib-GObject-WARNING **: IA__g_object_set_valist: property `has-toplevel-focus' of object class `GtkWindow' is not writable
+-hasToplevelFocus 0
+Error: -hasToplevelFocus: 0 != 1
+
+(test.tcl:2711): GLib-GObject-WARNING **: IA__g_object_set_valist: property `has-toplevel-focus' of object class `GtkWindow' is not writable
+-hasToplevelFocus 1 ok
+
+(test.tcl:2711): GLib-GObject-WARNING **: value "((GdkGravity) 0)" of type `GdkGravity' is invalid or out of range for property `gravity' of type `GdkGravity'
+-gravity 0
+Error: -gravity: 0 != 1
+
+window/gnoclOptHasFrame
+
+(test.tcl:2711): Gtk-CRITICAL **: gtk_window_set_has_frame: assertion `!GTK_WIDGET_REALIZED (window)' failed
+-hasFrame 0window/gnoclOptHasFrame
+
+(test.tcl:2711): Gtk-CRITICAL **: gtk_window_set_has_frame: assertion `!GTK_WIDGET_REALIZED (window)' failed
+
+Error: Command "cget" is for option "-hasFrame" not yet implemented.
+Please mail the author, if you need it.
+window/gnoclOptHasFrame
+
+(test.tcl:2711): Gtk-CRITICAL **: gtk_window_set_has_frame: assertion `!GTK_WIDGET_REALIZED (window)' failed
+-hasFrame 1window/gnoclOptHasFrame
+
+(test.tcl:2711): Gtk-CRITICAL **: gtk_window_set_has_frame: assertion `!GTK_WIDGET_REALIZED (window)' failed
+
+Error: Command "cget" is for option "-hasFrame" not yet implemented.
+
+(test.tcl:2711): Gdk-CRITICAL **: gdk_x11_atom_to_xatom_for_display: assertion `atom != GDK_NONE' failed
+
+(test.tcl:2711): Gdk-CRITICAL **: gdk_x11_atom_to_xatom_for_display: assertion `atom != GDK_NONE' failed
+-fullScreen fullScreen
+(test.tcl:2711): Gdk-CRITICAL **: gdk_x11_atom_to_xatom_for_display: assertion `atom != GDK_NONE' failed
+
+(test.tcl:2711): Gdk-CRITICAL **: gdk_x11_atom_to_xatom_for_display: assertion `atom != GDK_NONE' failed
+
+Error: Command "cget" is for option "-fullScreen" not yet implemented.
+Please mail the author, if you need it.
+
+-transient transient
+Error: Unknown widget "transient".Command "cget" is for option "-transient" not yet implemented.
+Please mail the author, if you need it.
+
+(test.tcl:2711): Gdk-CRITICAL **: gdk_x11_atom_to_xatom_for_display: assertion `atom != GDK_NONE' failed
+-keepAbove keepAbove
+(test.tcl:2711): Gdk-CRITICAL **: gdk_x11_atom_to_xatom_for_display: assertion `atom != GDK_NONE' failed
+
+Error: Command "cget" is for option "-keepAbove" not yet implemented.
+Please mail the author, if you need it.
+
+(test.tcl:2711): Gdk-CRITICAL **: gdk_x11_atom_to_xatom_for_display: assertion `atom != GDK_NONE' failed
+-keepBelow keepBelow
+(test.tcl:2711): Gdk-CRITICAL **: gdk_x11_atom_to_xatom_for_display: assertion `atom != GDK_NONE' failed
+
+Error: Command "cget" is for option "-keepBelow" not yet implemented.
+Please mail the author, if you need it.
+
+(test.tcl:2711): Gdk-CRITICAL **: gdk_x11_atom_to_xatom_for_display: assertion `atom != GDK_NONE' failed
+-stick stick
+(test.tcl:2711): Gdk-CRITICAL **: gdk_x11_atom_to_xatom_for_display: assertion `atom != GDK_NONE' failed
+
+Error: Command "cget" is for option "-stick" not yet implemented.
+Please mail the author, if you need it.
+window/gnoclOptOpacity
+-opacity opacitywindow/gnoclOptOpacity
+
+Error: Command "cget" is for option "-opacity" not yet implemented.
+Please mail the author, if you need it.
+
+** (test.tcl:2711): WARNING **: Datei »mask« konnte nicht geöffnet werden: Datei oder Verzeichnis nicht gefunden
+-mask mask
+** (test.tcl:2711): WARNING **: Datei »mask« konnte nicht geöffnet werden: Datei oder Verzeichnis nicht gefunden
+
+Error: Command "cget" is for option "-mask" not yet implemented.
+Please mail the author, if you need it.
+
+# bad cursor "cursorCommand": must be xCursor, arrow, basedArrowDown, basedArrowUp, boat, bogosity, bottomLeftCorner, bottomRightCorner, bottomSide, bottomTee, boxSpiral, centerPtr, circle, clock, coffeeMug, cross, crossReverse, crosshair, diamondCross, dot, dotbox, doubleArrow, draftLarge, draftSmall, drapedBox, exchange, fleur, gobbler, gumby, hand1, hand2, heart, icon, ironCross, leftPtr, leftSide, leftTee, leftbutton, llAngle, lrAngle, man, middlebutton, mouse, pencil, pirate, plus, questionArrow, rightPtr, rightSide, rightTee, rightbutton, rtlLogo, sailboat, sbDownArrow, sbHDoubleArrow, sbLeftArrow, sbRightArrow, sbUpArrow, sbVDoubleArrow, shuttle, sizing, spider, spraycan, star, target, tcross, topLeftArrow, topLeftCorner, topRightCorner, topSide, topTee, trek, ulAngle, umbrella, urAngle, watch, xterm, left, or top
+# 	-cursor {left top} \
+# (test.tcl:1877): Gdk-CRITICAL **: gdk_window_set_cursor: assertion `GDK_IS_WINDOW (window)' failed
+# The program 'test.tcl' received an X Window System error.
+# This probably reflects a bug in the program.
+# The error was 'BadValue (integer parameter out of range for operation)'.
+  # (Details: serial 633 error_code 2 request_code 94 minor_code 0)
+  # (Note to programmers: normally, X errors are reported asynchronously;
+   # that is, you will receive the error a while after causing it.
+   # To debug your program, run it with the --sync command line
+   # option to change this behavior. You can then get a meaningful
+   # backtrace from your debugger if you break on the gdk_x_error() function.)
+

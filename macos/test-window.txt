@@ -1,0 +1,72 @@
+Automatic Testing of gnocl::window
+
+-name GnoclWindow ok
+-title Gnocl-Window ok
+-backgroundColor blue 	Error: -backgroundColor: blue != 0 0 65535
+-defaultWidth 640 ok
+-defaultHeight 480 ok
+-visible 0 ok
+-visible 1 ok
+-decorated 0 ok
+-decorated 1 ok
+-x 100 ok
+-y 100 ok
+-width 100 ok
+-width 300 ok
+-height 100 ok
+-height 300 ok
+-resizable 0 ok
+-resizable 1 ok
+-deletable 0 ok
+-deletable 1 ok
+-allowGrow 0 ok
+-allowGrow 1 ok
+-allowShrink 0 ok
+-allowShrink 1 ok
+-sensitive 0 ok
+-sensitive 1 ok
+-data My data ok
+-dropTargets MyWidget ok
+-onDelete exit ok
+-onDestroy Destroycommand ok
+-onDragData MyDragData ok
+-onDropData MyDropData ok
+-onKeyPress MyKeyCommnd ok
+-onKeyRelease MyKeyReleaseCommand ok
+-onPopupMenu ShowPopup ok
+-onShowHelp ShowHelp ok
+-tooltip MyToolTip ok
+-borderWidth 12 ok
+-borderWidth small 		Error: -borderWidth: small != 4
+-borderWidth normal		Error: -borderWidth: normal != 8
+-borderWidth big			Error: -borderWidth: big != 12
+-heightRequest 400 ok
+-widthRequest 400 ok
+-onRealize widget ok
+-onRealize w% ok
+-onResize OnResizeCommand ok
+-onEnter OnEnterCommand ok
+-onLeave OnLeaveCommand ok
+-skipPagerHint 0 ok
+-skipTaskBarHint 0 ok
+-urgencyHint 0 ok
+-urgencyHint 1 ok
+-acceptFocus 0 ok
+-acceptFocus 1 ok
+-focusOnMap 0 ok
+-focusOnMap 1 ok
+-gravity 1 ok
+-onActivateDefault testCommand ok
+-onActivateFocus testCommand ok
+-onFrameEvent testCommand ok
+-onFocusIn testCommand ok
+-onFocusOut testCommand ok
+-onMoveFocus onMoveFocus ok
+-onKeysChanged testCommand ok
+-onSetFocus testCommand ok
+-destroyWithParent 0 ok
+-destroyWithParent 1 ok
+-onMotion onMotion ok
+-onButtonPress onButtonPress ok
+-onButtonRelease onButtonRelease ok
+test finished
