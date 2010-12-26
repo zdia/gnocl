@@ -1,0 +1,487 @@
+diff -Naupr gnocl-0.9.91_old/demos/doTests gnocl-0.9.91_new/demos/doTests
+--- gnocl-0.9.91/demos/doTests	2006-02-27 20:27:55.000000000 +0000
++++ gnocl-0.9.91/demos/doTests	2007-06-10 08:45:45.484375000 +0000
+@@ -71,7 +71,7 @@ proc showSource { } {
+ 
+ proc loadFile { } {
+    global files
+-   global no
++   global no tcl_platform
+ 
+    set file [lindex $files $no]
+    catch {$::socket delete}
+@@ -79,9 +79,17 @@ proc loadFile { } {
+       set ::socket [gnocl::socket]
+       $::socketBox add $::socket
+       $::socketBox configure -label $file
+-      catch {exec ./$file [$::socket getID] &} ::pid
++      if {$tcl_platform(platform) == "windows"} {
++        catch {exec [info nameofexecutable] $file [$::socket getID] &} ::pid
++      } else {
++        catch {exec ./$file [$::socket getID] &} ::pid
++      }
+    } else {
+-      catch {exec ./$file &} ::pid
++     if {$tcl_platform(platform) == "windows"} {
++       catch {exec [info nameofexecutable] $file &} ::pid
++     } else {
++       catch {exec ./$file &} ::pid
++     }
+    }
+    $::message configure -text $::pid
+    $::first configure -sensitive [expr {$no > 0}]
+diff -Naupr gnocl-0.9.91_old/src/Makefile gnocl-0.9.91_new/src/Makefile
+--- gnocl-0.9.91/src/Makefile	2006-02-27 20:27:55.000000000 +0000
++++ gnocl-0.9.91/src/Makefile	2007-06-09 14:37:46.734375000 +0000
+@@ -30,6 +30,14 @@ TCL_VERSION := $(shell echo 'puts $$tcl_
+ export ADDCFLAGS := -DVERSION=\"$(VERSION)\" -DUSE_TCL_STUBS $(shell pkg-config --cflags gtk+-2.0) -I/usr/include/tcl$(TCL_VERSION)/
+ export LIBS := $(shell pkg-config --libs gtk+-2.0) -ltclstub$(TCL_VERSION)
+ 
++SHLIB_SUFFIX ?= .so
++
++ifeq ($(SHLIB_SUFFIX),.dll)
++OUTLIB := -Wl,--out-implib,libgnocl.dll.a
++else
++OUTLIB :=
++endif
++
+ ############################################################
+ # There should be no need to edit something below this line 
+ ############################################################
+@@ -93,6 +101,10 @@ ifeq ($(GTK_26),yes)
+    GTK_OBJ += aboutDialog.o 
+ endif
+ 
++ifeq ($(SHLIB_SUFFIX),.dll)
++   GTK_OBJ += gnocl_info.o
++endif
++
+ SUBDIRS := 
+ ifdef USE_CANVAS
+    SUBDIRS += canvas
+@@ -116,30 +128,33 @@ EXCLFILES := -name "CVS" -o -name ".??*"
+ 
+ %.o : %.c; $(CC) -c $(CPPFLAGS) $(CFLAGS) $(ADDCFLAGS) -o $*.o $<
+ 
+-all: pkgIndex.tcl gnocl.so $(SUBDIRS) ; 
++all: pkgIndex.tcl gnocl$(SHLIB_SUFFIX) $(SUBDIRS) ; 
++
++gnocl: gnocl$(SHLIB_SUFFIX) ;
+ 
+-gnocl: gnocl.so ;
++gnocl_info.o : gnocl_info.rc
++	windres -o $@ $<
+ 
+-gnocl.so: $(GTK_OBJ)
+-	$(CC) -shared -o $@ $(GTK_OBJ) $(LIBS)
++gnocl$(SHLIB_SUFFIX): $(GTK_OBJ)
++	$(CC) -shared $(LDFLAGS) $(OUTLIB) -o $@ $(GTK_OBJ) $(LIBS)
+ 
+ gnome canvas gconf vfs: 
+ 	$(MAKE) -C $@
+ 
+-gnoclCanvas.so: 
++gnoclCanvas$(SHLIB_SUFFIX): 
+ 	$(MAKE) -C canvas
+ 
+-gnoclGconf.so: 
++gnoclGconf$(SHLIB_SUFFIX): 
+ 	$(MAKE) -C gconf
+ 
+-gnoclVFS.so: 
++gnoclVFS$(SHLIB_SUFFIX): 
+ 	$(MAKE) -C vfs
+ 
+-gnoclGnome.so: 
++gnoclGnome$(SHLIB_SUFFIX): 
+ 	$(MAKE) -C gnome
+ 
+ clean:
+-	rm -f $(GTK_OBJ) gnocl.so 
++	rm -f $(GTK_OBJ) gnocl$(SHLIB_SUFFIX) 
+ 	$(MAKE) -C canvas clean
+ 	$(MAKE) -C gconf clean
+ 	$(MAKE) -C gnome clean
+diff -Naupr gnocl-0.9.91_old/src/canvas/Makefile gnocl-0.9.91_new/src/canvas/Makefile
+--- gnocl-0.9.91/src/canvas/Makefile	2006-02-27 20:27:55.000000000 +0000
++++ gnocl-0.9.91/src/canvas/Makefile	2007-06-09 15:04:55.281250000 +0000
+@@ -2,8 +2,12 @@
+ #
+ # this Makefile must be called from the Master Gnocl Makefile
+ 
++SHLIB_SUFFIX ?= .so
+ ADDCFLAGS += $(shell pkg-config --cflags libgnomecanvas-2.0)
+ LIBS += $(shell pkg-config --libs libgnomecanvas-2.0)
++ifeq ($(SHLIB_SUFFIX),.dll)
++LIBS += ../libgnocl$(SHLIB_SUFFIX).a
++endif
+ 
+ ############################################################
+ # There should be no need to edit something below this line 
+@@ -23,16 +27,22 @@ OBJS = \
+    canvasWidget.o \
+    gnoclCanvas.o 
+ 
++ifeq ($(SHLIB_SUFFIX),.dll)
++   OBJS += canvas_info.o
++endif
+ 
+ .PHONY: canvas clean 
+ 
+ %.o : %.c; $(CC) -c $(CPPFLAGS) $(CFLAGS) $(ADDCFLAGS) -o $*.o $<
+ 
+-canvas: ../gnoclCanvas.so ;
++canvas: ../gnoclCanvas$(SHLIB_SUFFIX) ;
+ 
+-../gnoclCanvas.so: $(OBJS)
+-	$(CC) -shared -o ../gnoclCanvas.so $(OBJS) $(LIBS)
++../gnoclCanvas$(SHLIB_SUFFIX): $(OBJS)
++	$(CC) -shared $(LDFLAGS) -o ../gnoclCanvas$(SHLIB_SUFFIX) $(OBJS) $(LIBS)
++
++canvas_info.o : canvas_info.rc
++	windres -o $@ $<
+ 
+ clean:
+-	rm -f $(OBJS) ../gnoclCanvas.so 
++	rm -f $(OBJS) ../gnoclCanvas$(SHLIB_SUFFIX) 
+ 
+diff -Naupr gnocl-0.9.91_old/src/canvas/canvas_info.rc gnocl-0.9.91_new/src/canvas/canvas_info.rc
+--- gnocl-0.9.91/src/canvas/canvas_info.rc	1970-01-01 00:00:00.000000000 +0000
++++ gnocl-0.9.91/src/canvas/canvas_info.rc	2007-06-10 09:49:30.578125000 +0000
+@@ -0,0 +1,30 @@
++#include <winver.h>
++
++VS_VERSION_INFO VERSIONINFO
++  FILEVERSION 0,9,91,0
++  PRODUCTVERSION 0,9,91,0
++  FILEFLAGSMASK 0
++  FILEFLAGS 0
++  FILEOS VOS__WINDOWS32
++  FILETYPE VFT_DLL
++  FILESUBTYPE VFT2_UNKNOWN
++  BEGIN
++    BLOCK "StringFileInfo"
++    BEGIN
++      BLOCK "040904B0"
++      BEGIN
++	VALUE "CompanyName", "The Gnocl developer community"
++	VALUE "FileDescription", "Tcl interface to GTK+ and Gnome"
++	VALUE "FileVersion", "0.9.91"
++	VALUE "InternalName", "gnoclCanvas.dll"
++	VALUE "LegalCopyright", "Copyright © Peter G. Baum, 2001-2007."
++	VALUE "OriginalFilename", "gnoclCanvas.dll"
++	VALUE "ProductName", "Gnocl - Tcl meets GTK+ and Gnome"
++	VALUE "ProductVersion", "0.9.91"
++      END
++    END
++    BLOCK "VarFileInfo"
++    BEGIN
++      VALUE "Translation", 0x409, 1200
++    END
++  END
+diff -Naupr gnocl-0.9.91_old/src/gconf/Makefile gnocl-0.9.91_new/src/gconf/Makefile
+--- gnocl-0.9.91/src/gconf/Makefile	2006-02-27 20:27:55.000000000 +0000
++++ gnocl-0.9.91/src/gconf/Makefile	2007-06-09 15:12:26.109375000 +0000
+@@ -2,8 +2,12 @@
+ #
+ # this Makefile must be called from the Master Gnocl Makefile
+ 
++SHLIB_SUFFIX ?= .so
+ ADDCFLAGS += $(shell pkg-config --cflags gconf-2.0)
+-LIBS += $(shell pkg-config --libs gconf-2.0) 
++LIBS += $(shell pkg-config --libs gconf-2.0)
++ifeq ($(SHLIB_SUFFIX),.dll)
++LIBS += ../libgnocl$(SHLIB_SUFFIX).a
++endif
+ 
+ ############################################################
+ # There should be no need to edit something below this line 
+@@ -12,16 +16,22 @@ LIBS += $(shell pkg-config --libs gconf-
+ OBJS = \
+    gnoclGconf.o 
+ 
++ifeq ($(SHLIB_SUFFIX),.dll)
++   OBJS += gnoclGconf_info.o
++endif
+ 
+ .PHONY: gconf clean 
+ 
+ %.o : %.c; $(CC) -c $(CPPFLAGS) $(CFLAGS) $(ADDCFLAGS) -o $*.o $<
+ 
+-gconf: ../gnoclGconf.so ;
++gconf: ../gnoclGconf$(SHLIB_SUFFIX) ;
+ 
+-../gnoclGconf.so: $(OBJS)
+-	$(CC) -shared -o ../gnoclGconf.so $(OBJS) $(LIBS)
++../gnoclGconf$(SHLIB_SUFFIX): $(OBJS)
++	$(CC) -shared $(LDFLAGS) -o ../gnoclGconf$(SHLIB_SUFFIX) $(OBJS) $(LIBS)
++
++gnoclGconf_info.o : gnoclGconf_info.rc
++	windres -o $@ $<
+ 
+ clean:
+-	rm -f $(OBJS) ../gnoclGconf.so 
++	rm -f $(OBJS) ../gnoclGconf$(SHLIB_SUFFIX) 
+ 
+diff -Naupr gnocl-0.9.91_old/src/gconf/gnoclGconf_info.rc gnocl-0.9.91_new/src/gconf/gnoclGconf_info.rc
+--- gnocl-0.9.91/src/gconf/gnoclGconf_info.rc	1970-01-01 00:00:00.000000000 +0000
++++ gnocl-0.9.91/src/gconf/gnoclGconf_info.rc	2007-06-10 09:50:07.781250000 +0000
+@@ -0,0 +1,30 @@
++#include <winver.h>
++
++VS_VERSION_INFO VERSIONINFO
++  FILEVERSION 0,9,91,0
++  PRODUCTVERSION 0,9,91,0
++  FILEFLAGSMASK 0
++  FILEFLAGS 0
++  FILEOS VOS__WINDOWS32
++  FILETYPE VFT_DLL
++  FILESUBTYPE VFT2_UNKNOWN
++  BEGIN
++    BLOCK "StringFileInfo"
++    BEGIN
++      BLOCK "040904B0"
++      BEGIN
++	VALUE "CompanyName", "The Gnocl developer community"
++	VALUE "FileDescription", "Tcl interface to GTK+ and Gnome"
++	VALUE "FileVersion", "0.9.91"
++	VALUE "InternalName", "gnoclGconf.dll"
++	VALUE "LegalCopyright", "Copyright © Peter G. Baum, 2001-2007."
++	VALUE "OriginalFilename", "gnoclGconf.dll"
++	VALUE "ProductName", "Gnocl - Tcl meets GTK+ and Gnome"
++	VALUE "ProductVersion", "0.9.91"
++      END
++    END
++    BLOCK "VarFileInfo"
++    BEGIN
++      VALUE "Translation", 0x409, 1200
++    END
++  END
+diff -Naupr gnocl-0.9.91_old/src/gnocl.c gnocl-0.9.91_new/src/gnocl.c
+--- gnocl-0.9.91/src/gnocl.c	2006-02-27 20:27:55.000000000 +0000
++++ gnocl-0.9.91/src/gnocl.c	2007-06-07 15:26:52.484375000 +0000
+@@ -169,6 +169,7 @@
+ #include <string.h>
+ #include <ctype.h>
+ #include <stdlib.h>
++#include <locale.h>
+ 
+ #include <assert.h>
+ 
+@@ -959,6 +960,7 @@ int Gnocl_Init( Tcl_Interp *interp )
+ 
+    /* TODO? set locale before every jump to Tcl? */
+    Tcl_PutEnv( "LC_NUMERIC=C" );
++
+    argvp = argv = gnoclGetArgv( interp, &argc );
+    if( !gtk_init_check( &argc, &argvp ) )
+    {
+@@ -985,6 +987,10 @@ int Gnocl_Init( Tcl_Interp *interp )
+    /* FIXME: is there a more elegant way? */
+    /*        use gtk_idle_add( tclTimerFunc, NULL ); ? */
+    g_timeout_add( 100, tclTimerFunc, NULL );
++
++#ifdef WIN32
++   setlocale(LC_NUMERIC, "C");
++#endif
+    Tcl_SetMainLoop( gtk_main );
+ 
+    return TCL_OK;
+diff -Naupr gnocl-0.9.91_old/src/gnocl_info.rc gnocl-0.9.91_new/src/gnocl_info.rc
+--- gnocl-0.9.91/src/gnocl_info.rc	1970-01-01 00:00:00.000000000 +0000
++++ gnocl-0.9.91/src/gnocl_info.rc	2007-06-10 09:49:07.218750000 +0000
+@@ -0,0 +1,30 @@
++#include <winver.h>
++
++VS_VERSION_INFO VERSIONINFO
++  FILEVERSION 0,9,91,0
++  PRODUCTVERSION 0,9,91,0
++  FILEFLAGSMASK 0
++  FILEFLAGS 0
++  FILEOS VOS__WINDOWS32
++  FILETYPE VFT_DLL
++  FILESUBTYPE VFT2_UNKNOWN
++  BEGIN
++    BLOCK "StringFileInfo"
++    BEGIN
++      BLOCK "040904B0"
++      BEGIN
++	VALUE "CompanyName", "The Gnocl developer community"
++	VALUE "FileDescription", "Tcl interface to GTK+ and Gnome"
++	VALUE "FileVersion", "0.9.91"
++	VALUE "InternalName", "gnocl.dll"
++	VALUE "LegalCopyright", "Copyright © Peter G. Baum, 2001-2007."
++	VALUE "OriginalFilename", "gnocl.dll"
++	VALUE "ProductName", "Gnocl - Tcl meets GTK+ and Gnome"
++	VALUE "ProductVersion", "0.9.91"
++      END
++    END
++    BLOCK "VarFileInfo"
++    BEGIN
++      VALUE "Translation", 0x409, 1200
++    END
++  END
+diff -Naupr gnocl-0.9.91_old/src/install.tcl gnocl-0.9.91_new/src/install.tcl
+--- gnocl-0.9.91/src/install.tcl	2006-02-27 20:27:55.000000000 +0000
++++ gnocl-0.9.91/src/install.tcl	2007-05-12 15:55:42.625000000 +0000
+@@ -26,7 +26,7 @@ switch -- $what {
+                   }
+                   puts "Creating $destDir"
+                   file mkdir $destDir
+-                  set files [glob *.so]
++                  set files [glob *[info sharedlibextension]]
+                   lappend files pkgIndex.tcl
+                   foreach file $files {
+                      puts "Copying $file"
+diff -Naupr gnocl-0.9.91_old/src/pkgIndex.tcl gnocl-0.9.91_new/src/pkgIndex.tcl
+--- gnocl-0.9.91/src/pkgIndex.tcl	2006-02-27 20:27:55.000000000 +0000
++++ gnocl-0.9.91/src/pkgIndex.tcl	2007-05-12 15:48:18.828125000 +0000
+@@ -8,12 +8,12 @@
+ # script is sourced, the variable $dir must contain the
+ # full path name of this file's directory.
+ 
+-package ifneeded Gnocl 0.9.91 [list load [file join $dir gnocl.so]]
++package ifneeded Gnocl 0.9.91 [list load [file join $dir gnocl[info sharedlibextension]]]
+ package ifneeded GnoclCanvas 0.9.91 "package require -exact Gnocl 0.9.91 
+-   [list load [file join $dir gnoclCanvas.so]]"
++   [list load [file join $dir gnoclCanvas[info sharedlibextension]]]"
+ package ifneeded GnoclGconf 0.9.91 "package require -exact Gnocl 0.9.91 
+-   [list load [file join $dir gnoclGconf.so]]"
++   [list load [file join $dir gnoclGconf[info sharedlibextension]]]"
+ package ifneeded GnoclVFS 0.9.91 "package require -exact Gnocl 0.9.91 
+-   [list load [file join $dir gnoclVFS.so]]"
++   [list load [file join $dir gnoclVFS[info sharedlibextension]]]"
+ package ifneeded GnoclGnome 0.9.91 "package require -exact Gnocl 0.9.91 
+-   [list load [file join $dir gnoclGnome.so]]"
++   [list load [file join $dir gnoclGnome[info sharedlibextension]]]"
+diff -Naupr gnocl-0.9.91_old/src/plug.c gnocl-0.9.91_new/src/plug.c
+--- gnocl-0.9.91/src/plug.c	2006-02-27 20:27:55.000000000 +0000
++++ gnocl-0.9.91/src/plug.c	2007-05-05 13:09:16.125000000 +0000
+@@ -18,7 +18,11 @@
+  */
+ 
+ #include "gnocl.h"
++#ifdef WIN32
++#include <gdk/gdkwin32.h>
++#else
+ #include <gdk/gdkx.h>
++#endif
+ #include <string.h>
+ #include <assert.h>
+ 
+diff -Naupr gnocl-0.9.91_old/src/socket.c gnocl-0.9.91_new/src/socket.c
+--- gnocl-0.9.91/src/socket.c	2006-02-27 20:27:55.000000000 +0000
++++ gnocl-0.9.91/src/socket.c	2007-05-12 15:15:46.984375000 +0000
+@@ -17,7 +17,11 @@
+  */
+ 
+ #include "gnocl.h"
++#ifdef WIN32
++#include <gdk/gdkwin32.h>
++#else
+ #include <gdk/gdkx.h>
++#endif
+ #include <string.h>
+ #include <assert.h>
+ 
+@@ -92,7 +96,11 @@ static int socketFunc( ClientData data, 
+                   Tcl_WrongNumArgs( interp, 2, objv, NULL );
+                   return TCL_ERROR;
+                }
++#ifdef WIN32
++               xid = gtk_socket_get_id(socket);
++#else
+                xid = GDK_WINDOW_XWINDOW( GTK_WIDGET( socket)->window );
++#endif
+                val = Tcl_NewLongObj( xid );
+                Tcl_SetObjResult( interp, val );
+             }
+@@ -107,7 +115,11 @@ static int socketFunc( ClientData data, 
+                   return TCL_ERROR;
+                }
+                if( socket->plug_window )
++#ifdef WIN32
++                  xid = gdk_win32_drawable_get_handle( socket->plug_window );
++#else
+                   xid = GDK_WINDOW_XWINDOW( socket->plug_window );
++#endif
+                val = Tcl_NewLongObj( xid ); 
+                Tcl_SetObjResult( interp, val );
+             }
+diff -Naupr gnocl-0.9.91_old/src/vfs/Makefile gnocl-0.9.91_new/src/vfs/Makefile
+--- gnocl-0.9.91/src/vfs/Makefile	2006-02-27 20:27:55.000000000 +0000
++++ gnocl-0.9.91/src/vfs/Makefile	2007-06-09 15:12:16.390625000 +0000
+@@ -2,8 +2,12 @@
+ #
+ # this Makefile must be called from the Master Gnocl Makefile
+ 
++SHLIB_SUFFIX ?= .so
+ ADDCFLAGS += $(shell pkg-config --cflags gnome-vfs-2.0)
+-LIBS += $(shell pkg-config --libs gnome-vfs-2.0) 
++LIBS += $(shell pkg-config --libs gnome-vfs-2.0)
++ifeq ($(SHLIB_SUFFIX),.dll)
++LIBS += ../libgnocl$(SHLIB_SUFFIX).a
++endif
+ 
+ ############################################################
+ # There should be no need to edit something below this line 
+@@ -14,16 +18,21 @@ OBJS = \
+    mime.o \
+    gnoclVFS.o 
+ 
++ifeq ($(SHLIB_SUFFIX),.dll)
++   OBJS += gnoclVFS_info.o
++endif
+ 
+ .PHONY: gconf clean 
+ 
+ %.o : %.c; $(CC) -c $(CPPFLAGS) $(CFLAGS) $(ADDCFLAGS) -o $*.o $<
+ 
+-vfs: ../gnoclVFS.so ;
++vfs: ../gnoclVFS$(SHLIB_SUFFIX) ;
+ 
+-../gnoclVFS.so: $(OBJS)
+-	$(CC) -shared -o ../gnoclVFS.so $(OBJS) $(LIBS)
++../gnoclVFS$(SHLIB_SUFFIX): $(OBJS)
++	$(CC) -shared $(LDFLAGS) -o ../gnoclVFS$(SHLIB_SUFFIX) $(OBJS) $(LIBS)
+ 
++gnoclVFS_info.o : gnoclVFS_info.rc
++	windres -o $@ $<
+ clean:
+-	rm -f $(OBJS) ../gnoclVFS.so 
++	rm -f $(OBJS) ../gnoclVFS$(SHLIB_SUFFIX)
+ 
+diff -Naupr gnocl-0.9.91_old/src/vfs/gnoclVFS_info.rc gnocl-0.9.91_new/src/vfs/gnoclVFS_info.rc
+--- gnocl-0.9.91/src/vfs/gnoclVFS_info.rc	1970-01-01 00:00:00.000000000 +0000
++++ gnocl-0.9.91/src/vfs/gnoclVFS_info.rc	2007-06-10 09:50:29.968750000 +0000
+@@ -0,0 +1,30 @@
++#include <winver.h>
++
++VS_VERSION_INFO VERSIONINFO
++  FILEVERSION 0,9,91,0
++  PRODUCTVERSION 0,9,91,0
++  FILEFLAGSMASK 0
++  FILEFLAGS 0
++  FILEOS VOS__WINDOWS32
++  FILETYPE VFT_DLL
++  FILESUBTYPE VFT2_UNKNOWN
++  BEGIN
++    BLOCK "StringFileInfo"
++    BEGIN
++      BLOCK "040904B0"
++      BEGIN
++	VALUE "CompanyName", "The Gnocl developer community"
++	VALUE "FileDescription", "Tcl interface to GTK+ and Gnome"
++	VALUE "FileVersion", "0.9.91"
++	VALUE "InternalName", "gnoclVFS.dll"
++	VALUE "LegalCopyright", "Copyright © Peter G. Baum, 2001-2007."
++	VALUE "OriginalFilename", "gnoclVFS.dll"
++	VALUE "ProductName", "Gnocl - Tcl meets GTK+ and Gnome"
++	VALUE "ProductVersion", "0.9.91"
++      END
++    END
++    BLOCK "VarFileInfo"
++    BEGIN
++      VALUE "Translation", 0x409, 1200
++    END
++  END

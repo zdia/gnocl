@@ -1,46 +1,40 @@
 #---------------
 # NAME
-#   Makefile -- Package build and installation for gnocl.dylib
+#   makefile -- Package build and installation
 #---------------
 # AUTHORS
 #   Peter G Baum, 2005
 #   William J Giddings. 2010
-#		adapted to MacOSX: Zbigniew Diaczyszyn, 2010
-#		see https://github.com/zdia/gnocl/wiki/gnocl-on-MacOSX
 #---------------
-# DEPENDENCIES
-#		Gtk+-2.0
-#		Git installed
-#		ActiveState Tcl 8.5 for MacOSX
 
 PACKAGE_NAME := gnocl
 PACKAGE_REQUIRE_NAME := Gnocl
 VERSION := 0.9.95
 
-CFLAGS += -pedantic -fPIC -w -Os -dynamiclib -ObjC -arch i386
+CFLAGS += -pedantic -fPIC -w -Os
 
 TCL_VERSION := $(shell echo 'puts $$tcl_version' | tclsh)
 
-# if not AS Tcl/Tk then:
-# -F/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/Tcl.framework
-
 ADDCFLAGS := -DVERSION=\"$(VERSION)\" \
-	-DUSE_TCL_STUBS $(shell pkg-config --cflags gtk+-2.0 libglade-2.0) \
-	-F/Library/Frameworks/Tcl.framework 
+	-DUSE_TCL_STUBS $(shell pkg-config --cflags gtk+-2.0) \
+	-I/usr/include/tcl$(TCL_VERSION) \
+	-I/usr/include/libglade-2.0
 
 LIBS := $(shell pkg-config \
-	--libs gtk+-2.0 libglade-2.0 ige-mac-integration) \
-	-ltclstub$(TCL_VERSION) \
+	--libs gtk+-2.0 libglade-2.0 libnotify libcanberra) \
+	-ltclstub$(TCL_VERSION)
 
 GTK_OBJ := \
 	aboutDialog.o \
 	accelarator.o \
 	action.o \
 	arrowButton.o \
+	aspectFrame.o \
 	assistant.o \
 	box.o \
 	button.o \
 	builder.o \
+	cairo.o \
 	calendar.o \
 	callback.o \
 	checkButton.o \
@@ -60,8 +54,8 @@ GTK_OBJ := \
 	eventBox.o \
 	expander.o \
 	fileChooser.o \
-	fileChooserDialog.o \
 	fileChooserButton.o \
+	fixed.o \
 	fontButton.o \
 	fontSelection.o \
 	fontSelectionDialog.o \
@@ -70,18 +64,24 @@ GTK_OBJ := \
 	handleBox.o \
 	helperFuncs.o \
 	iconView.o \
+	infoBar.o \
 	inputDialog.o \
 	image.o \
+	keyfile.o \
 	label.o \
+	layout.o \
 	linkButton.o \
 	menu.o \
 	menuBar.o \
 	menuCheckItem.o \
 	menuItem.o \
 	menuRadioItem.o \
+	menuRecentChooser.o \
 	menuSeparator.o \
 	messageDialog.o \
 	notebook.o \
+	notify.o \
+	pageSetup.o \
 	paned.o \
 	parseOptions.o \
 	pixBuf.o \
@@ -89,6 +89,8 @@ GTK_OBJ := \
 	pixMap.o \
 	plug.o \
 	print.o \
+	printerDialog.o \
+	printOperation.o \
 	progressBar.o \
 	radioButton.o \
 	recentChooser.o \
@@ -101,8 +103,8 @@ GTK_OBJ := \
 	separator.o \
 	socket.o \
 	spinButton.o \
+	splashScreen.o \
 	statusBar.o \
-	statusIcon.o \
 	table.o \
 	text.o \
 	textBuffer.o \
@@ -112,28 +114,21 @@ GTK_OBJ := \
 	volumeButton.o \
 	window.o
 
+
+
 .PHONY: all $(PACKAGE_NAME) clean install uninstall reinstall devinstall devuninstall
 
 %.o : %.c; $(CC) -c $(CFLAGS) $(ADDCFLAGS) -o $*.o $<
-# darwin gcc is complaining about the -o output
-# %.o : %.c;	$(CC) -c $(CFLAGS) $(ADDCFLAGS) $<
 
-all: pkgIndex.tcl $(PACKAGE_NAME).dylib ;
+all: pkgIndex.tcl $(PACKAGE_NAME).so ;
 
-$(PACKAGE_NAME): $(PACKAGE_NAME).dylib ;
+$(PACKAGE_NAME): $(PACKAGE_NAME).so ;
 
-$(PACKAGE_NAME).dylib: $(GTK_OBJ)
-	# mv combo.o fileSelection.o optionMenu.o deprecated/
-	# $(CC) -dynamic -arch i386 -o $@ $(GTK_OBJ) $(LIBS) \
-		# /Developer/SDKs/MacOSX10.6.sdk/usr/lib/libc.dylib
-		
-	# jhbuild's modules work with the autotools' libtool 
-	# for the moment we build the lib with Apple's native tool
-	/usr/bin/libtool -dynamic -arch_only i386 -o $@ $(GTK_OBJ) $(LIBS) \
-		/Developer/SDKs/MacOSX10.6.sdk/usr/lib/libc.dylib
+$(PACKAGE_NAME).so: $(GTK_OBJ)
+	$(CC) -shared -o $@ $(GTK_OBJ) $(LIBS)
 
 clean:
-	rm -f $(GTK_OBJ) $(PACKAGE_NAME).dylib
+	rm -f $(GTK_OBJ) $(PACKAGE_NAME).so
 
 install:
 	./install.tcl $(PACKAGE_REQUIRE_NAME) $(VERSION) $(PACKAGE_NAME) install
@@ -162,4 +157,3 @@ devinstall:
 devuninstall:
 	rm /usr/include/gnocl.h
 	rm /usr/lib/libgnocl*.a
-
