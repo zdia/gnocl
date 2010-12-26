@@ -1,0 +1,100 @@
+﻿---------------------------------------------------------------------------------------------------------
+OVERVIEW
+---------------------------------------------------------------------------------------------------------
+
+Gnocl is a GTK+/Gnome extension for the programming language Tcl that
+provides easy to use commands to quickly build GTK+ compliant applications.
+
+---------------------------------------------------------------------------------------------------------
+DEPENDENCIES
+---------------------------------------------------------------------------------------------------------
+
+In order to successfully compile the packages, a number of dependencies
+need to installed. These include the following development libraries and 
+header files.
+
+	Tcl/Tk      version 8.4 or later
+	Gtk+        version 2.14 or better
+	libglade
+
+These should be available from the installation disks or repositories
+for the distribution of Linux that you are using.
+
+This release is tested with GTK+ version 2.14.4, Gnome version 2.24.1
+and Tcl version 8.5 under Linux (OpenSuse 11.1).
+
+---------------------------------------------------------------------------------------------------------
+BUILDING AND INSTALLATION
+---------------------------------------------------------------------------------------------------------
+
+In the directory in which the Gnocl project sources are found:
+
+Login as super-user and issue the following commands:
+
+    make all
+    make install
+
+    alternatively,
+
+    make && make install
+
+To remove the installation type, again as super-user:
+
+    make uninstall
+
+To remove any previously created binaries, as super-user enter:
+
+    make clean
+
+Finally, to check that the build and installation has been successful, enter:
+
+    make test
+
+---------------------------------------------------------------------------------------------------------
+BUILDING AND INSTALLATION OF DEVELOPMENT HEADERS & LIBRARIES
+---------------------------------------------------------------------------------------------------------
+
+In order to build and install other Gnocl dependant packages such as 
+gnocl::canvas and gnocl::gnome, it will be necessary to install the development
+headers and libraries on your system.
+
+To do this, again login as superuser and run the command:
+
+	make devinstall
+
+These can be removed with the instruction:
+
+	make devuninstall
+
+To determine which set of libraries are already installed use the following command:
+
+	ls /usr/lib/libgnocl*
+
+---------------------------------------------------------------------------------------------------------
+DOCUMENTATION
+---------------------------------------------------------------------------------------------------------
+
+User documentation and example tutorials are available on-line at:
+
+www.gnocl.org
+
+---------------------------------------------------------------------------------------------------------
+SUPPORT AND QUESTIONS
+---------------------------------------------------------------------------------------------------------
+
+Any user questions or issues arising from the installation and use of
+Gnocl can be posted to the Gnocl users group:
+
+http://groups.google.com/group/gnocl
+
+---------------------------------------------------------------------------------------------------------
+LICENCE TERMS
+---------------------------------------------------------------------------------------------------------
+
+Gnocl is released under the terms of the BSD licence which essentially
+means that the Gnocl software and sources can be used in either open
+or closed-source projects without the payment of royalties as long as
+the copyright notices remain unchanged. See the file license.terms for
+complete details.
+
+

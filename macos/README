@@ -1,0 +1,30 @@
+Gnocl on MacOSX
+
+Gtk+ is intended as a cross platform GUI and Tcl is a cross-platform computer
+language so Tcl/Gtk would provide an effective partnership.
+
+Gnocl is a package which binds Tcl to Gtk. It is available for Linux and
+Windows but not for the MacOSX. For further information see: 
+http://www.gnocl.org/
+
+This project tries to port the Gnocl bindings to a native implementation
+of Gtk-2.0 for MacOSX which is given by the gtk-osx project. 
+See http://gtk-osx.sourceforge.net/
+
+In gtk-osx project all the Gtk+ libraries are bound to the Quartz library
+which is the base for Aqua. So no X11 server is needed any more and the
+objects are drawn in an Aqua wise way.
+
+In the Wiki there is documentation for the attempt to port gnocl to Snow
+Leopard (10.6.2) 
+
+Anyone who wants to commit to, fork or test this project is welcome.
+
+See the file "license.terms" for information on usage and redistribution
+of the Gnocl source files.
+
+The code in the macosx/ directory is under the GNU General Public License
+(Version 2, June 1991)
+
+
+
