@@ -1,0 +1,17 @@
+Gnocl implements a Tcl binding to the Gtk+ programming libraries for the
+rapid development of graphical user interfaces. Also supported too are a
+number of bindings to key resources and packages which build upon the
+Gtk+ libraries such as the Gnome Applet Menu and Canvas widget. Designed
+to work with Tcl in a manner consistent with the general syntax and
+command naming conventions of Tcl, Gnocl provides a robust alternative
+to Tk for those developers which wish to develop applications that
+seamlessly integrated into the Gnome desktop environment without having
+to first familiarize themselves with the intricacies of the Gtk+
+libraries and its dependencies.
+
+For further information see the Wiki https://github.com/zdia/gnocl/wiki
+and the site http://www.gnocl.org/.
+
+For License see: http://sites.google.com/site/gnocltclgtk/licence-terms
+
+
