@@ -50,7 +50,11 @@
  */
 
 #include "gnocl.h"
-#include <gdk/gdkx.h>
+#ifdef WIN32
+	#include <gdk/gdkwin32.h>
+#else
+	#include <gdk/gdkx.h>
+#endif
 #include <string.h>
 #include <assert.h>
 
@@ -156,7 +160,11 @@ static int socketFunc ( ClientData data, Tcl_Interp *interp,
 					return TCL_ERROR;
 				}
 
+#ifdef WIN32
+				xid = gtk_socket_get_id(socket);
+#else
 				xid = GDK_WINDOW_XWINDOW ( GTK_WIDGET ( socket )->window );
+#endif
 
 				val = Tcl_NewLongObj ( xid );
 				Tcl_SetObjResult ( interp, val );
@@ -175,7 +183,11 @@ static int socketFunc ( ClientData data, Tcl_Interp *interp,
 				}
 
 				if ( socket->plug_window )
+#ifdef WIN32
+					xid = gdk_win32_drawable_get_handle( socket->plug_window );
+#else
 					xid = GDK_WINDOW_XWINDOW ( socket->plug_window );
+#endif		
 
 				val = Tcl_NewLongObj ( xid );
 

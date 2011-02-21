@@ -31,6 +31,13 @@
 #include <gdk/gdkx.h>
 #include <string.h>
 #include <assert.h>
+#include "gnocl.h"
+#ifdef WIN32
+	#include <gdk/gdkwin32.h>
+#else
+	#include <gdk/gdkx.h>
+#endif
+
 
 /****v* plug/plugOptions
  * AUTHOR
