@@ -1252,15 +1252,6 @@ int gnoclWindowCmd (
 			gtk_widget_show ( GTK_WIDGET ( window ) );
 		}
 
-
-// added 02.08.2010 zdia
-#include "osxmenu.h"
-
-#ifdef GDK_WINDOWING_QUARTZ
-		// g_print("menubar\n") ;
-		gtk_widget_show_all(GtkOSXMenubar);
-#endif
-
 		/* let the window also receive buttonPress events */
 		gtk_widget_add_events ( GTK_WIDGET ( window ) , 0x3FFFFE ); /* ie. GDK_ALL_EVENTS_MASK */
 

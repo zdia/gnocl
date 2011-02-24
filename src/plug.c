@@ -28,11 +28,10 @@
  */
 
 #include "gnocl.h"
-#include <gdk/gdkx.h>
 #include <string.h>
 #include <assert.h>
-#include "gnocl.h"
-#ifdef WIN32
+
+#ifdef WIN32  /* native MS */
 	#include <gdk/gdkwin32.h>
 #else
 	#include <gdk/gdkx.h>
