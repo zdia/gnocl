@@ -16,8 +16,11 @@
 # MinGW
 # CMake
 
-# Build call on Windows systems: cmake -G "MinGW Makefiles" ../src
-# Build call on Linux systems: cmake ../src
+# Build call on Windows systems: cmake -G "MinGW Makefiles" ../../src
+# Build call on Linux systems: cmake ../../src
+# TODO: Enable remote build: include(ExternalProject)
+
+# TODO: Check existence of pkg-config, Gtk, mingw etc
 
 cmake_policy(VERSION 2.8)
 # explicit setting of cmake's macro policy else we get warning messages
@@ -26,6 +29,8 @@ cmake_minimum_required (VERSION 2.6)
 
 project (GNOCL)
 set (VERSION 0.9.95)
+
+message ( STATUS "Building Gnocl for target ${CMAKE_SYSTEM_NAME}" )
 
 if (UNIX)
 	set ( GET_TCL_VERSION echo "puts $tcl_version" )
@@ -43,7 +48,7 @@ else (UNIX)
 		set (CMAKE_CXX_COMPILER mingw32-g++)
 		cmake_policy ( SET CMP0015 NEW )
 
-		set ( GET_TCL_VERSION "cmd.exe /c echo puts $tcl_version" )
+		set ( GET_TCL_VERSION cmd /c "echo puts $tcl_version" )
 		set ( CMAKE_C_FLAGS "-pedantic -fPIC -w -Os -mms-bitfields" )
 		
   else ()
@@ -97,7 +102,7 @@ execute_process (
 )
    
 string ( STRIP ${TCL_VERSION} TCL_VERSION )
-message ( STATUS "TCL_VERSION:\t \t" ${TCL_VERSION} )
+message ( STATUS "TCL_VERSION:\t\t" ${TCL_VERSION} )
 # message ( STATUS "SYSTEM-PATH:\t \t" $ENV{PATH} )
 # message ( STATUS "TCL_PROGRAM:\t \t" ${TCL_PROGRAM} )
 # message ( STATUS "GNOCL_SOURCE_DIR:\t" ${GNOCL_SOURCE_DIR} )
@@ -243,12 +248,12 @@ set (GTK2_DEBUG off)
 # set (GTK2_ADDITIONAL_SUFFIXES)
 find_package ( GTK2 REQUIRED gtk glade )
 message ( STATUS "GTK2_FOUND:\t\t" ${GTK2_FOUND} )
-message ( STATUS "TCL_VERSION:\t\t" ${TCL_VERSION} )
 message ( STATUS "GNOCL_SOURCE_DIR:\t" ${GNOCL_SOURCE_DIR} )
 # set (TCL_STUB_LIBRARY c:/Tcl/lib/libtclstub8.5.a)
 message ( STATUS "TCL_STUB_LIBRARY:\t" ${TCL_STUB_LIBRARY} )
 # Variable GTK2 is already in use by a FindGTK2.cmake module
 message ( STATUS "GTK+_LIBRARIES:\t" ${GTK+_LIBRARIES} )
+message ( STATUS "GTK+_LDFLAGS:\t" ${GTK+_LDFLAGS} )
 message ( STATUS "GTK+_INCLUDE_DIRS:\t" ${GTK+_INCLUDE_DIRS} )
 
 # set (GTK2_DEBUG on)
@@ -267,5 +272,6 @@ add_library ( gnocl SHARED ${GNOCL_SOURCES} )
 # Result will be: libgnocl.(so|dylib|dll)
 
 # Tells the shared library to be linked against Gtk+ and TclStub ones
-target_link_libraries( gnocl ${GTK+_LIBRARIES} ${TCL_STUB_LIBRARY} )
+# target_link_libraries( gnocl ${GTK+_LIBRARIES} ${TCL_STUB_LIBRARY} )
+target_link_libraries( gnocl ${GTK+_LDFLAGS} ${TCL_STUB_LIBRARY} )
 
