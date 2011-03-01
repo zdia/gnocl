@@ -21,6 +21,14 @@
 # TODO: Enable remote build: include(ExternalProject)
 
 # TODO: Check existence of pkg-config, Gtk, mingw etc
+# install runtime Gtk-dll etc
+
+# Note: Windows version needs in Gtk/bin folder:
+# iconv.dll libglade-2.0-0.dll libxml2-2.dll
+# add xml2.pc libglade-2.0.pc
+
+# Usefull addresses:
+# http://ftp.gnome.org/pub/GNOME/binaries/win32/libglade/2.6/
 
 cmake_policy(VERSION 2.8)
 # explicit setting of cmake's macro policy else we get warning messages
@@ -275,3 +283,6 @@ add_library ( gnocl SHARED ${GNOCL_SOURCES} )
 # target_link_libraries( gnocl ${GTK+_LIBRARIES} ${TCL_STUB_LIBRARY} )
 target_link_libraries( gnocl ${GTK+_LDFLAGS} ${TCL_STUB_LIBRARY} )
 
+# install(TARGETS libgnocl DESTINATION /some/full/path)
+# install(FILES files... DESTINATION <dir>)
+# install (CODE "MESSAGE ( \"Sample install message.\" ) ")

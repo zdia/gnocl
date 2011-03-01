@@ -1,0 +1,30 @@
+Quick installation guide
+(For a detailed guide see https://github.com/zdia/gnocl/wiki/Building-Gnocl-with-CMake-for-Windows
+
+Tested with XP SP3, Gtk 2.16, Cmake 2.8, MinGW 4.50, Gnocl 0.9.95   
+
+1. Install Tcl (default: C:\Tcl).
+Binaries you can find here: http://www.activestate.com/activetcl/   
+2. Install development Gtk+ 2.16 package (default: C:\Gtk) from
+http://ftp.gnome.org/pub/gnome/binaries/win32/gtk+/2.16/gtk+-bundle_2.16.6-20100912_win32.zip  
+3. Install Cmake 2.8 (default: C:\Programs\Cmake 2.8) from
+http://www.cmake.org/files/v2.8/cmake-2.8.3-win32-x86.exe   
+4. Install MinGW for Windows from
+http://sourceforge.net/projects/mingw/files/Automated MinGWInstaller/mingw-get-inst (default C:\MinGW)   
+5. Install tarball or zipball with Gnocl sourcecode from
+https://github.com/zdia/gnocl/zipball/0.9.95   
+6. Build the shared library libgnocl.dll in the Powershell or with CMD      
+    cd build\Windows     
+    cmake ..\..\src      
+    make      
+    make install   
+7. Make sure the system’s path can find the installed binaries   
+8. Test the library with tclsh      
+    load [file join [pwd] libgnocl.dll] Gnocl      
+    package require Gnocl      
+    gnocl::window   
+9. Go on with the demos
+
+Contact: 
+https://github.com/zdia/gnocl/issues or
+z_dot_dia_at_gmx_dot_de
